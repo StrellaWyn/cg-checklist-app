@@ -1,0 +1,64 @@
+import streamlit as st
+import json
+import os
+from datetime import datetime
+
+os.makedirs("logs", exist_ok=True)
+
+with open("checklist_structure.json", "r") as f:
+    checklist_data = json.load(f)
+
+st.title("CG Milestone Checklist Protocol App")
+
+username = st.text_input("Enter your name to begin:")
+if username:
+    st.success(f"Welcome, {username}!")
+
+    section = st.selectbox("Choose a checklist section:", list(checklist_data.keys()))
+    if section:
+        st.subheader(f"Checklist: {section}")
+        completed_items = []
+        for item in checklist_data[section]:
+            if st.checkbox(item):
+                completed_items.append(item)
+
+        if st.button("Submit Checklist"):
+            log_entry = {
+                "user": username,
+                "section": section,
+                "completed_items": completed_items,
+                "timestamp": datetime.now().isoformat()
+            }
+            log_path = f"logs/{username}_log.json"
+            with open(log_path, "a") as log_file:
+                log_file.write(json.dumps(log_entry) + "\n")
+            st.success("Checklist submitted and logged!")
+
+    if st.checkbox("View My Logs"):
+        log_path = f"logs/{username}_log.json"
+        if os.path.exists(log_path):
+            with open(log_path, "r") as log_file:
+                for line in log_file:
+                    entry = json.loads(line)
+                    st.write(entry)
+        else:
+            st.warning("No logs found for this user.")
+streamlit
+python-docx
+# CG Milestone Checklist Protocol App
+
+This is a multi-user checklist protocol app built with Streamlit, based on the CG Milestone Process Outline.
+
+## Features
+- User login
+- Interactive checklist per logistics bucket
+- Timestamped logs
+- Log viewer per user
+
+## Setup Instructions
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/cg-checklist-app.git
+   cd cg-checklist-app
+pip install -r requirements.txt
